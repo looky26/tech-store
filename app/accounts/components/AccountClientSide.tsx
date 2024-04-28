@@ -12,7 +12,8 @@ const AccountClientSide = () => {
   useEffect(() => {
     console.log(userId)
     const getUser = async () => {
-      const res = await fetch('http://localhost:3000/accounts/api')
+      // const res = await fetch('http://localhost:3000/accounts/api')
+      const res = await fetch('https://tech-store-wheat.vercel.app/accounts/api')
       const user = await res.json()
       const loggedInUser = user.data.filter((item:any)=>item.userId === userId)
       console.log(loggedInUser)
