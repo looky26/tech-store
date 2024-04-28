@@ -54,30 +54,36 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   //Create User Account in xata
-  if(eventType === 'user.created') {
-    const {id, email_addresses, birthday, phone_numbers , gender, first_name, last_name} = evt.data
+  if (eventType === 'user.created') {
+    const { id, email_addresses, birthday, phone_numbers, gender, first_name, last_name } = evt.data
 
     const user = {
-        userId: id,
-        name: first_name + " " + last_name,
-        gender: gender,
-        email: email_addresses[0].email_address,
-        birthday: birthday,
-        phoneNumber: phone_numbers,
+      userId: id,
+      name: first_name + " " + last_name,
+      gender: gender,
+      email: email_addresses[0].email_address,
+      birthday: birthday,
+      phoneNumber: phone_numbers,
     }
 
-    console.log(user)
+    console.log('User data from Clerk:', user);
 
-    const newUser = await createUser(user)
+    try {
+      const newUser = await createUser(user)
+      console.log('New user created in Xata:', newUser);
 
-    // if(newUser) {
-    //     await clerkClient.users.updateUserMetadata(id, {
-    //         publicMetadata: {
-    //             userId: newUser._id,
-    //         },
-    //     })
-    // }
-    return NextResponse.json({message: "New user created", user:newUser})
+      // Update Clerk user metadata (if needed)
+      // await clerkClient.users.updateUserMetadata(id, {
+      //   publicMetadata: {
+      //     userId: newUser._id,
+      //   },
+      // })
+
+      return NextResponse.json({ message: "New user created", user: newUser })
+    } catch (error) {
+      console.error('Error creating user in Xata:', error);
+      return NextResponse.json({ message: "Error creating user", error }, { status: 500 })
+    }
   }
 
 
