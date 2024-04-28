@@ -1,6 +1,6 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
-import { WebhookEvent } from '@clerk/nextjs/server'
+import { PhoneNumber, WebhookEvent, clerkClient } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { createUser } from '@/app/lib/actions/userAction'
 
@@ -52,6 +52,34 @@ export async function POST(req: Request) {
   // Get the ID and type
   const { id } = evt.data;
   const eventType = evt.type;
+
+  //Create User Account in xata
+  if(eventType === 'user.created') {
+    const {id, email_addresses, birthday, phone_numbers , gender, first_name, last_name} = evt.data
+
+    const user = {
+        userId: id,
+        name: first_name + " " + last_name,
+        gender: gender,
+        email: email_addresses[0].email_address,
+        birthday: birthday,
+        phoneNumber: phone_numbers,
+    }
+
+    console.log(user)
+
+    const newUser = await createUser(user)
+
+    if(newUser) {
+        await clerkClient.users.updateUserMetadata(id, {
+            publicMetadata: {
+                userId: newUser._id,
+            },
+        })
+    }
+    return NextResponse.json({message: "New user created", user:newUser})
+  }
+
 
   console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
   console.log('Webhook body:', body)

@@ -21,7 +21,7 @@ const Navbar = () => {
   //clerk
 
   const { user } = useUser();
-  //console.log(user?.id)
+  console.log(user)
   const { signOut } = useClerk();
 
 
